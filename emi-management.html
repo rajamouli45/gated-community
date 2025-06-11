@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMI Management - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #1a237e;
+        }
+
+        h1, h2 {
+            color: #1a237e;
+        }
+
+        .back-btn {
+            color: #1a237e;
+            text-decoration: none;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        .emi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .emi-card {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .emi-card h3 {
+            color: #1a237e;
+            margin-bottom: 15px;
+        }
+
+        .emi-details {
+            margin-bottom: 15px;
+        }
+
+        .emi-details p {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .emi-options {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .emi-option {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .emi-option:hover {
+            background: #e3f2fd;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .available {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .occupied {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .maintenance {
+            background-color: #FFC107;
+            color: black;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>EMI Management</h1>
+            <a href="admin-dashboard.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <div class="emi-grid">
+            <!-- 1BHK Apartments -->
+            <div class="emi-card">
+                <h3>1BHK Apartments</h3>
+                <div class="emi-details">
+                    <p>Total Price: ₹75,00,000</p>
+                    <p>Down Payment (20%): ₹15,00,000</p>
+                    <p>Available Units: <span id="1BHK-available">5</span></p>
+                </div>
+                <div class="emi-options">
+                    <div class="emi-option">
+                        <span>5 Years</span>
+                        <span>₹1,25,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>10 Years</span>
+                        <span>₹75,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>15 Years</span>
+                        <span>₹55,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>20 Years</span>
+                        <span>₹45,000/month</span>
+                    </div>
+                </div>
+                <span class="status available">Available</span>
+            </div>
+
+            <!-- 2BHK Apartments -->
+            <div class="emi-card">
+                <h3>2BHK Apartments</h3>
+                <div class="emi-details">
+                    <p>Total Price: ₹1,50,00,000</p>
+                    <p>Down Payment (20%): ₹30,00,000</p>
+                    <p>Available Units: <span id="2BHK-available">3</span></p>
+                </div>
+                <div class="emi-options">
+                    <div class="emi-option">
+                        <span>5 Years</span>
+                        <span>₹2,50,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>10 Years</span>
+                        <span>₹1,50,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>15 Years</span>
+                        <span>₹1,10,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>20 Years</span>
+                        <span>₹90,000/month</span>
+                    </div>
+                </div>
+                <span class="status occupied">Limited</span>
+            </div>
+
+            <!-- 3BHK Apartments -->
+            <div class="emi-card">
+                <h3>3BHK Apartments</h3>
+                <div class="emi-details">
+                    <p>Total Price: ₹2,25,00,000</p>
+                    <p>Down Payment (20%): ₹45,00,000</p>
+                    <p>Available Units: <span id="3BHK-available">2</span></p>
+                </div>
+                <div class="emi-options">
+                    <div class="emi-option">
+                        <span>5 Years</span>
+                        <span>₹3,75,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>10 Years</span>
+                        <span>₹2,25,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>15 Years</span>
+                        <span>₹1,65,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>20 Years</span>
+                        <span>₹1,35,000/month</span>
+                    </div>
+                </div>
+                <span class="status maintenance">Under Maintenance</span>
+            </div>
+
+            <!-- Single Bedroom -->
+            <div class="emi-card">
+                <h3>Single Bedroom</h3>
+                <div class="emi-details">
+                    <p>Total Price: ₹60,00,000</p>
+                    <p>Down Payment (20%): ₹12,00,000</p>
+                    <p>Available Units: <span id="Single Bedroom-available">8</span></p>
+                </div>
+                <div class="emi-options">
+                    <div class="emi-option">
+                        <span>5 Years</span>
+                        <span>₹1,00,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>10 Years</span>
+                        <span>₹60,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>15 Years</span>
+                        <span>₹44,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>20 Years</span>
+                        <span>₹36,000/month</span>
+                    </div>
+                </div>
+                <span class="status available">Available</span>
+            </div>
+
+            <!-- Studio Apartments -->
+            <div class="emi-card">
+                <h3>Studio Apartments</h3>
+                <div class="emi-details">
+                    <p>Total Price: ₹45,00,000</p>
+                    <p>Down Payment (20%): ₹9,00,000</p>
+                    <p>Available Units: <span id="Studio-available">4</span></p>
+                </div>
+                <div class="emi-options">
+                    <div class="emi-option">
+                        <span>5 Years</span>
+                        <span>₹75,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>10 Years</span>
+                        <span>₹45,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>15 Years</span>
+                        <span>₹33,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>20 Years</span>
+                        <span>₹27,000/month</span>
+                    </div>
+                </div>
+                <span class="status available">Available</span>
+            </div>
+
+            <!-- Penthouse -->
+            <div class="emi-card">
+                <h3>Penthouse</h3>
+                <div class="emi-details">
+                    <p>Total Price: ₹3,75,00,000</p>
+                    <p>Down Payment (20%): ₹75,00,000</p>
+                    <p>Available Units: <span id="Penthouse-available">1</span></p>
+                </div>
+                <div class="emi-options">
+                    <div class="emi-option">
+                        <span>5 Years</span>
+                        <span>₹6,25,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>10 Years</span>
+                        <span>₹3,75,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>15 Years</span>
+                        <span>₹2,75,000/month</span>
+                    </div>
+                    <div class="emi-option">
+                        <span>20 Years</span>
+                        <span>₹2,25,000/month</span>
+                    </div>
+                </div>
+                <span class="status occupied">Limited</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update available units display
+        function updateAvailableUnits() {
+            const apartmentData = JSON.parse(localStorage.getItem('apartmentData')) || {};
+            
+            for (const [type, data] of Object.entries(apartmentData)) {
+                const element = document.getElementById(`${type}-available`);
+                if (element) {
+                    element.textContent = data.available;
+                }
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', updateAvailableUnits);
+    </script>
+</body>
+</html> 

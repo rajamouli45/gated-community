@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - WebPay</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="payment-page-body">
+    <div class="payment-wrapper">
+        <div class="payment-form-section">
+            <form id="creditCardForm">
+                <div class="payment-header">
+                    <div class="webpay-logo">.webPay</div>
+                    <div class="time-left"><span id="countdown-timer">02:04</span><br>time left!</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cardNumber">Card Number</label>
+                    <p class="hint">Enter the 16-digit card number on the card</p>
+                    <div class="input-with-icon card-input-wrapper">
+                        <i class="fas fa-credit-card card-icon"></i>
+                        <input type="text" id="cardNumber" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" required>
+                        <div class="card-logos">
+                            <img src="https://i.ibb.co/L9435L9/mastercard-logo.png" alt="MasterCard" class="mastercard-logo">
+                            <img src="https://i.ibb.co/hK53m15/visa-logo.png" alt="Visa" class="visa-logo">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cardName">Card Name Holder</label>
+                    <p class="hint">Enter name card holder on the card</p>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="cardName" placeholder="enter your name" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cvvNumber">CVV Number</label>
+                    <p class="hint">Enter the 3 or 4 digits number on the card</p>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="text" id="cvvNumber" placeholder="XXX" maxlength="4" required>
+                    </div>
+                </div>
+
+                <div class="form-group expiry-cvv-group">
+                    <div class="expiry-date-group">
+                        <label for="expiryMonth">Expiry Date</label>
+                        <p class="hint">Enter the expiration date of the card</p>
+                        <div class="expiry-inputs">
+                            <input type="text" id="expiryMonth" placeholder="MM" maxlength="2" required>
+                            <span>/</span>
+                            <input type="text" id="expiryYear" placeholder="YY" maxlength="2" required>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="pay-now-btn">Pay Now</button>
+            </form>
+        </div>
+        <div class="payment-summary-section">
+            <div class="card-preview">
+                <div class="card-logo"></div>
+                <div class="card-name">John Doe</div>
+                <div class="card-number">4854 6848 7521 2657</div>
+                <div class="card-expiry">11/25</div>
+            </div>
+            <div class="order-summary">
+                <h3>Order Summary</h3>
+                <div class="summary-item">
+                    <span class="label">Order Number</span>
+                    <span class="value">15042022</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span class="label">Vat (10%)</span>
+                    <span class="value">₹50.00</span>
+                </div>
+                <div class="total-amount">
+                    <span class="value">₹1.255</span>
+                    <span class="label">Total you have to pay</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cardNumberInput = document.getElementById('cardNumber');
+            const cardNameInput = document.getElementById('cardName');
+            const expiryMonthInput = document.getElementById('expiryMonth');
+            const expiryYearInput = document.getElementById('expiryYear');
+            const cvvInput = document.getElementById('cvvNumber');
+
+            const cardPreviewName = document.querySelector('.card-preview .card-name');
+            const cardPreviewNumber = document.querySelector('.card-preview .card-number');
+            const cardPreviewExpiry = document.querySelector('.card-preview .card-expiry');
+            const totalAmountValue = document.querySelector('.total-amount .value');
+
+            // Function to format card number with spaces
+            function formatCardNumber(value) {
+                const cleanedValue = value.replace(/\s/g, '');
+                const parts = [];
+                for (let i = 0; i < cleanedValue.length; i += 4) {
+                    parts.push(cleanedValue.substring(i, i + 4));
+                }
+                return parts.join(' ');
+            }
+
+            cardNumberInput.addEventListener('input', (e) => {
+                e.target.value = formatCardNumber(e.target.value);
+                cardPreviewNumber.textContent = e.target.value || '**** **** **** ****';
+            });
+
+            cardNameInput.addEventListener('input', (e) => {
+                cardPreviewName.textContent = e.target.value.toUpperCase() || 'XXX';
+            });
+
+            expiryMonthInput.addEventListener('input', (e) => {
+                let month = e.target.value;
+                if (month.length === 2 && parseInt(month) > 12) {
+                    e.target.value = '12';
+                    month = '12';
+                }
+                if (month.length === 2 && parseInt(month) === 0) {
+                    e.target.value = '01';
+                    month = '01';
+                }
+                cardPreviewExpiry.textContent = `${month || 'MM'}/${expiryYearInput.value || 'YY'}`;
+            });
+
+            expiryYearInput.addEventListener('input', (e) => {
+                cardPreviewExpiry.textContent = `${expiryMonthInput.value || 'MM'}/${e.target.value || 'YY'}`;
+            });
+
+            // Initial update of card preview on load (if values are pre-filled)
+            cardPreviewName.textContent = cardNameInput.value.toUpperCase() || 'XXX';
+            cardPreviewNumber.textContent = formatCardNumber(cardNumberInput.value) || '**** **** **** ****';
+            cardPreviewExpiry.textContent = `${expiryMonthInput.value || 'MM'}/${expiryYearInput.value || 'YY'}`;
+
+            // Get amount from URL and display it
+            const urlParams = new URLSearchParams(window.location.search);
+            const amountFromUrl = urlParams.get('amount');
+
+            if (amountFromUrl) {
+                // Assuming the amount is a number and needs to be formatted to Indian Rupees
+                const formattedAmount = `₹${parseFloat(amountFromUrl).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                totalAmountValue.textContent = formattedAmount;
+            } else {
+                // Fallback or default value if no amount is provided in URL
+                totalAmountValue.textContent = '₹0.00'; // Or any other default
+            }
+
+            // Handle form submission (can be extended for actual payment processing)
+            document.getElementById('creditCardForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                // Get original bill details from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const originalBillId = urlParams.get('billId');
+                const originalBillType = urlParams.get('type');
+
+                alert('Payment Successful!');
+
+                // Redirect back to customer dashboard with success parameters
+                if (originalBillId && originalBillType) {
+                    window.location.href = `customer-dashboard.html?paidBillId=${originalBillId}&paidBillType=utility`;
+                } else {
+                    // If payment was not initiated from a specific bill, just redirect to dashboard
+                    window.location.href = 'customer-dashboard.html?paymentStatus=success';
+                }
+            });
+
+            // Countdown timer logic
+            const countdownElement = document.getElementById('countdown-timer');
+            let timeLeft = 2 * 60 + 4; // 2 minutes and 4 seconds in total seconds
+
+            function updateCountdown() {
+                const minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+
+                countdownElement.textContent = `${minutes}:${seconds}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    countdownElement.textContent = '00:00';
+                    alert('Session expired! Please refresh the page.');
+                    // Optionally disable the form
+                    document.getElementById('creditCardForm').style.pointerEvents = 'none';
+                    document.getElementById('creditCardForm').style.opacity = '0.5';
+                } else {
+                    timeLeft--;
+                }
+            }
+
+            const timerInterval = setInterval(updateCountdown, 1000);
+            updateCountdown(); // Initial call to display time immediately
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard - Gated Community Management System</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>Customer Dashboard</h1>
+            <a href="#" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-card">
+                <h3>Personal Information</h3>
+                <div class="profile-details">
+                    <p><strong>Name:</strong> <span id="customer-name"></span></p>
+                    <p><strong>Email:</strong> <span id="customer-email">john@example.com</span></p>
+                    <p><strong>Phone:</strong> <span id="customer-phone">+91 9876543210</span></p>
+                    <p><strong>Member Since:</strong> <span id="member-since">January 2024</span></p>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <h3>Account Summary</h3>
+                <div class="profile-details">
+                    <p><strong>Apartment:</strong> <span id="apartment-number">A101</span></p>
+                    <p><strong>Type:</strong> <span id="apartment-type">2 BHK</span></p>
+                    <p><strong>Status:</strong> <span id="account-status" class="status active">Active</span></p>
+                    <p><strong>Next Payment Due:</strong> <span id="next-payment">15th March 2024</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="apartment-section">
+            <h2>Apartment Details</h2>
+            <div class="apartment-details">
+                <div class="apartment-info">
+                    <h4>Basic Information</h4>
+                    <p><strong>Floor:</strong> 1st Floor</p>
+                    <p><strong>Area:</strong> 1200 sq. ft.</p>
+                    <p><strong>Facing:</strong> North-East</p>
+                </div>
+                <div class="apartment-info">
+                    <h4>Payment Details</h4>
+                    <p><strong>Monthly Rent:</strong> ₹25,000</p>
+                    <p><strong>Maintenance:</strong> ₹5,000</p>
+                    <p><strong>Total Due:</strong> ₹30,000</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bills-container">
+            <h2>Recent Bills</h2>
+            <table class="bills-table">
+                <thead>
+                    <tr>
+                        <th>Bill Type</th>
+                        <th>Amount</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                        <th>Download</th>
+                    </tr>
+                </thead>
+                <tbody id="billsTableBody">
+                    <!-- Bills will be populated here dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- External JavaScript -->
+    <script src="script.js"></script>
+    <script>
+        function populateBillsTable(bills) {
+            const billsTableBody = document.getElementById('billsTableBody');
+            if (!billsTableBody) {
+                console.error('Bills table body not found.');
+                return;
+            }
+
+            billsTableBody.innerHTML = ''; // Clear existing content
+
+            bills.forEach(bill => {
+                const row = document.createElement('tr');
+                let actionCellContent = bill.action;
+
+                const billId = bill.id || Date.now(); // Ensure bill has an ID
+
+                if (bill.status === 'pending') {
+                    actionCellContent = `<button class="pay-now-btn" onclick="window.location.href='payment.html?billId=${billId}&amount=${bill.amount}&type=${bill.type}'">Pay Now</button>`;
+                } else if (bill.status === 'paid') {
+                    actionCellContent = 'Paid';
+                }
+
+                row.innerHTML = `
+                    <td>${bill.type}</td>
+                    <td>${utils.formatCurrency(bill.amount)}</td>
+                    <td>${utils.formatDate(bill.dueDate || bill.timestamp)}</td>
+                    <td><span class="status ${bill.status}">${bill.status.toUpperCase()}</span></td>
+                    <td>${actionCellContent}</td>
+                    <td><button class="download-pdf-btn" onclick="downloadBillPDF('${bill.type}', '${utils.formatCurrency(bill.amount)}', '${utils.formatDate(bill.dueDate || bill.timestamp)}', '${bill.status}')"><i class="fas fa-download"></i> PDF</button></td>
+                `;
+                billsTableBody.appendChild(row);
+            });
+        }
+
+        // Function to download bill as PDF (client-side generation)
+        function downloadBillPDF(type, amount, dueDate, status) {
+            const pdfContent = `
+                <html>
+                <head>
+                    <title>Bill Details - ${type}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h1 { color: #333; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .status { padding: 4px 8px; border-radius: 4px; color: white; display: inline-block; }
+                        .status.paid { background-color: #28a745; }
+                        .status.pending { background-color: #ffc107; }
+                        .status.maintenance { background-color: #6c757d; }
+                        .instruction { margin-top: 30px; font-style: italic; color: #555; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Bill Details</h1>
+                    <table>
+                        <tr><th>Bill Type</th><td>${type}</td></tr>
+                        <tr><th>Amount</th><td>${amount}</td></tr>
+                        <tr><th>Due Date</th><td>${dueDate}</td></tr>
+                        <tr><th>Status</th><td><span class="status ${status}">${status.toUpperCase()}</span></td></tr>
+                    </table>
+                    <p class="instruction">To save as PDF, please use your browser's print function (Ctrl+P or Cmd+P) and select 'Save as PDF'.</p>
+                </body>
+                </html>
+            `;
+
+            const newWindow = window.open();
+            newWindow.document.write(pdfContent);
+            newWindow.document.close();
+            newWindow.print(); // Immediately open print dialog
+        }
+
+        function createInitialBills(customer) {
+            const currentDate = new Date();
+            const nextMonth = new Date(currentDate);
+            nextMonth.setMonth(currentDate.getMonth() + 1);
+            
+            const initialBills = [
+                {
+                    id: 'initial-rent-' + Date.now(),
+                    type: 'Rent',
+                    amount: 25000,
+                    dueDate: nextMonth.toISOString(),
+                    status: 'pending',
+                    timestamp: currentDate.toISOString()
+                },
+                {
+                    id: 'initial-maintenance-' + Date.now(),
+                    type: 'Maintenance',
+                    amount: 5000,
+                    dueDate: nextMonth.toISOString(),
+                    status: 'pending',
+                    timestamp: currentDate.toISOString()
+                },
+                {
+                    id: 'initial-water-' + Date.now(),
+                    type: 'Water Bill',
+                    amount: 800,
+                    dueDate: nextMonth.toISOString(),
+                    status: 'pending',
+                    timestamp: currentDate.toISOString()
+                },
+                {
+                    id: 'initial-electricity-' + Date.now(),
+                    type: 'Electricity Bill',
+                    amount: 2500,
+                    dueDate: nextMonth.toISOString(),
+                    status: 'pending',
+                    timestamp: currentDate.toISOString()
+                },
+                {
+                    id: 'initial-gas-' + Date.now(),
+                    type: 'Gas Bill',
+                    amount: 1200,
+                    dueDate: nextMonth.toISOString(),
+                    status: 'pending',
+                    timestamp: currentDate.toISOString()
+                },
+                {
+                    id: 'initial-parking-' + Date.now(),
+                    type: 'Parking Fee',
+                    amount: 2000,
+                    dueDate: nextMonth.toISOString(),
+                    status: 'pending',
+                    timestamp: currentDate.toISOString()
+                },
+                {
+                    id: 'initial-gym-' + Date.now(),
+                    type: 'Gym Membership',
+                    amount: 1500,
+                    dueDate: nextMonth.toISOString(),
+                    status: 'pending',
+                    timestamp: currentDate.toISOString()
+                },
+                {
+                    id: 'initial-security-' + Date.now(),
+                    type: 'Security Deposit',
+                    amount: 50000,
+                    dueDate: nextMonth.toISOString(),
+                    status: 'pending',
+                    timestamp: currentDate.toISOString()
+                }
+            ];
+
+            // Update customer's bills
+            customer.bills = initialBills;
+            
+            // Update customers in localStorage
+            const customers = JSON.parse(localStorage.getItem('customers')) || [];
+            const customerIndex = customers.findIndex(c => c.username === customer.username);
+            if (customerIndex !== -1) {
+                customers[customerIndex] = customer;
+                localStorage.setItem('customers', JSON.stringify(customers));
+                
+                // Also update currentUser in localStorage
+                localStorage.setItem('currentUser', JSON.stringify(customer));
+            }
+
+            return initialBills;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('customer-dashboard.html: DOMContentLoaded');
+            const currentUserString = localStorage.getItem('currentUser');
+            console.log('customer-dashboard.html: currentUserString', currentUserString);
+
+            if (currentUserString) {
+                const currentUser = JSON.parse(currentUserString);
+                console.log('customer-dashboard.html: currentUser object', currentUser);
+
+                const customers = JSON.parse(localStorage.getItem('customers')) || [];
+                console.log('customer-dashboard.html: all customers', customers);
+
+                // Get utility bills from localStorage - ensure this function exists or adapt
+                // For simplicity, let's assume utilityBillsData is managed globally or fetched here
+                const utilityBillsData = JSON.parse(localStorage.getItem('utilityBills')) || [];
+                console.log('customer-dashboard.html: all utilityBillsData', utilityBillsData);
+
+                const updatedCurrentUser = customers.find(c => c.username === currentUser.username);
+                console.log('customer-dashboard.html: updatedCurrentUser', updatedCurrentUser);
+
+                // Handle paid bill redirection from payment.html
+                const urlParams = new URLSearchParams(window.location.search);
+                const paidBillId = urlParams.get('paidBillId');
+                const paidBillType = urlParams.get('paidBillType');
+
+                if (paidBillId && updatedCurrentUser) {
+                    let billFoundAndUpdated = false;
+
+                    // Try to find and update in currentUser.bills
+                    if (updatedCurrentUser.bills) {
+                        const billIndex = updatedCurrentUser.bills.findIndex(bill => bill.id === paidBillId);
+                        if (billIndex !== -1) {
+                            updatedCurrentUser.bills[billIndex].status = 'paid';
+                            billFoundAndUpdated = true;
+                            console.log(`customer-dashboard.html: Marked bill ${paidBillId} as paid in currentUser.bills`);
+                        }
+                    }
+
+                    // Try to find and update in utilityBillsData (if it's a utility bill)
+                    if (!billFoundAndUpdated && paidBillType === 'utility') {
+                        const utilityBillIndex = utilityBillsData.findIndex(bill => bill.id === paidBillId);
+                        if (utilityBillIndex !== -1) {
+                            utilityBillsData[utilityBillIndex].status = 'paid';
+                            localStorage.setItem('utilityBills', JSON.stringify(utilityBillsData));
+                            billFoundAndUpdated = true;
+                            console.log(`customer-dashboard.html: Marked utility bill ${paidBillId} as paid in utilityBillsData`);
+                        }
+                    }
+
+                    if (billFoundAndUpdated) {
+                        // Update currentUser in localStorage
+                        localStorage.setItem('currentUser', JSON.stringify(updatedCurrentUser));
+
+                        // Update customers array in localStorage
+                        const customerIndex = customers.findIndex(c => c.username === updatedCurrentUser.username);
+                        if (customerIndex !== -1) {
+                            customers[customerIndex] = updatedCurrentUser;
+                            localStorage.setItem('customers', JSON.stringify(customers));
+                        }
+
+                        // Add payment to revenue history for admin dashboard
+                        const revenueHistory = JSON.parse(localStorage.getItem('revenueHistory')) || [];
+                        const paidBill = (updatedCurrentUser.bills || []).find(bill => bill.id === paidBillId) ||
+                                         (utilityBillsData || []).find(bill => bill.id === paidBillId);
+
+                        if (paidBill) {
+                            const newRevenueEntry = {
+                                id: paidBill.id,
+                                customerName: updatedCurrentUser.fullname || 'Unknown Customer',
+                                billType: paidBill.type,
+                                amount: paidBill.amount,
+                                paymentDate: new Date().toISOString(),
+                                paymentMethod: 'Credit Card',
+                                status: 'Paid'
+                            };
+
+                            // Check if an entry for this bill already exists in revenueHistory to avoid duplicates
+                            const existingRevenueIndex = revenueHistory.findIndex(entry => entry.id === newRevenueEntry.id);
+                            if (existingRevenueIndex === -1) {
+                                revenueHistory.push(newRevenueEntry);
+                                localStorage.setItem('revenueHistory', JSON.stringify(revenueHistory));
+                                console.log('customer-dashboard.html: Added to revenueHistory', newRevenueEntry);
+                            } else {
+                                console.log('customer-dashboard.html: Bill already exists in revenueHistory, skipping addition.', newRevenueEntry.id);
+                            }
+                        }
+
+                        alert('Bill successfully marked as paid!');
+                    }
+                    
+                    // Clear URL parameters to prevent re-processing on refresh
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+
+                if (updatedCurrentUser) {
+                    document.getElementById('customer-name').textContent = updatedCurrentUser.fullname || 'N/A';
+                    document.getElementById('customer-email').textContent = updatedCurrentUser.email || 'N/A';
+                    document.getElementById('customer-phone').textContent = updatedCurrentUser.phone || 'N/A';
+                    document.getElementById('apartment-number').textContent = updatedCurrentUser.apartmentNumber || 'A101';
+                    document.getElementById('apartment-type').textContent = updatedCurrentUser.apartmentType || '2 BHK';
+
+                    // Check if customer has any bills, if not create initial bills
+                    if (!updatedCurrentUser.bills || updatedCurrentUser.bills.length === 0) {
+                        console.log('customer-dashboard.html: No bills found for customer, creating initial bills');
+                        const initialBills = createInitialBills(updatedCurrentUser);
+                        console.log('customer-dashboard.html: Created initial bills', initialBills);
+                        
+                        // Update the currentUser reference with the new bills
+                        currentUser.bills = initialBills;
+                        
+                        // Verify bills were saved
+                        const updatedCustomers = JSON.parse(localStorage.getItem('customers')) || [];
+                        const updatedCustomer = updatedCustomers.find(c => c.username === currentUser.username);
+                        console.log('customer-dashboard.html: Verified saved bills', updatedCustomer?.bills);
+                    } else {
+                        console.log('customer-dashboard.html: Customer already has bills', updatedCurrentUser.bills);
+                    }
+
+                    // Use the most up-to-date bills from localStorage
+                    const latestCustomer = JSON.parse(localStorage.getItem('currentUser'));
+                    const allBills = [
+                        ...(latestCustomer.bills || []),
+                        ...utilityBillsData.filter(bill => bill.customerId === latestCustomer.username)
+                    ];
+                    console.log('customer-dashboard.html: Combined allBills for display', allBills);
+                    populateBillsTable(allBills);
+                } else {
+                    console.error('Logged-in user not found in customers list. Redirecting to login.');
+                    window.location.href = 'customer-login.html';
+                }
+            } else {
+                console.warn('No current user found in localStorage. Redirecting to login.');
+                window.location.href = 'customer-login.html';
+            }
+        });
+    </script>
+</body>
+</html>

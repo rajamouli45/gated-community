@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Customer Registration - Gated Community Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #c2185b 0%, #880e4f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .register-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: #c2185b;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #c2185b;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #c2185b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .register-btn:hover {
+            background-color: #880e4f;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #c2185b;
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h1>New Customer Registration</h1>
+        <form id="registrationForm" onsubmit="handleRegistration(event)">
+            <div class="form-group">
+                <label for="fullname">Full Name:</label>
+                <input type="text" id="fullname" name="fullname" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Choose Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Choose Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password:</label>
+                <input type="password" id="confirm-password" name="confirm-password" required>
+            </div>
+            <div class="form-group">
+                <label for="apartmentType">Choose Apartment Type:</label>
+                <select id="apartmentType" name="apartmentType" required>
+                    <option value="">Select an apartment type</option>
+                    <option value="1BHK">1BHK Apartment</option>
+                    <option value="2BHK">2BHK Apartment</option>
+                    <option value="3BHK">3BHK Apartment</option>
+                    <option value="Single Bedroom">Single Bedroom</option>
+                    <option value="Studio">Studio Apartment</option>
+                    <option value="Penthouse">Penthouse</option>
+                </select>
+            </div>
+            <button type="submit" class="register-btn">Register</button>
+        </form>
+        <div class="back-link">
+            <a href="customer-login.html">Back to Customer Login</a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize apartment data if not exists
+        function initializeApartmentData() {
+            const apartmentData = {
+                '1BHK': { total: 20, available: 20 },
+                '2BHK': { total: 15, available: 15 },
+                '3BHK': { total: 10, available: 10 },
+                'Single Bedroom': { total: 25, available: 25 },
+                'Studio': { total: 30, available: 30 },
+                'Penthouse': { total: 5, available: 5 }
+            };
+
+            // Force update apartment data
+            localStorage.setItem('apartmentData', JSON.stringify(apartmentData));
+        }
+
+        function handleRegistration(event) {
+            event.preventDefault();
+            
+            // Get form values
+            const fullname = document.getElementById('fullname').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const apartmentType = document.getElementById('apartmentType').value;
+
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            // Get existing customers
+            let customers = [];
+            try {
+                const existingCustomers = localStorage.getItem('customers');
+                if (existingCustomers) {
+                    customers = JSON.parse(existingCustomers);
+                }
+            } catch (error) {
+                console.error('Error reading customer data:', error);
+                customers = [];
+            }
+
+            // Check if username already exists
+            if (customers.some(customer => customer.username === username)) {
+                alert('Username already exists! Please choose a different username.');
+                return;
+            }
+
+            // Check apartment availability
+            let apartmentData = JSON.parse(localStorage.getItem('apartmentData')) || {};
+            if (!apartmentData[apartmentType] || apartmentData[apartmentType].available <= 0) {
+                alert('Sorry, no units available for the selected apartment type.');
+                return;
+            }
+
+            // Create new customer object
+            const newCustomer = {
+                fullname,
+                email,
+                phone,
+                address,
+                username,
+                password,
+                apartmentType,
+                registrationDate: new Date().toISOString()
+            };
+
+            // Add new customer to array
+            customers.push(newCustomer);
+
+            // Update apartment availability
+            apartmentData[apartmentType].available--;
+
+            // Save updated data
+            try {
+                localStorage.setItem('customers', JSON.stringify(customers));
+                localStorage.setItem('apartmentData', JSON.stringify(apartmentData));
+                
+                // Set a flag to indicate new registration
+                localStorage.setItem('newRegistration', 'true');
+                
+                alert('Registration successful! You can now login with your credentials.');
+                window.location.href = 'customer-login.html';
+            } catch (error) {
+                console.error('Error saving data:', error);
+                alert('Registration failed. Please try again.');
+            }
+        }
+
+        // Initialize apartment data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApartmentData();
+        });
+
+        // Add event listener to form
+        document.getElementById('registrationForm').addEventListener('submit', handleRegistration);
+
+        // Add password validation
+        document.getElementById('confirm-password').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (password !== confirmPassword) {
+                this.setCustomValidity('Passwords do not match!');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Add username availability check
+        document.getElementById('username').addEventListener('blur', function() {
+            const username = this.value;
+            if (!username) return;
+
+            let customers = [];
+            try {
+                const existingCustomers = localStorage.getItem('customers');
+                if (existingCustomers) {
+                    customers = JSON.parse(existingCustomers);
+                }
+            } catch (error) {
+                console.error('Error checking username:', error);
+                return;
+            }
+            
+            if (customers.some(customer => customer.username === username)) {
+                this.setCustomValidity('Username already exists!');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Add phone number validation
+        document.getElementById('phone').addEventListener('input', function() {
+            const phone = this.value;
+            if (phone && !/^\d{10}$/.test(phone)) {
+                this.setCustomValidity('Please enter a valid 10-digit phone number');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Add email validation
+        document.getElementById('email').addEventListener('input', function() {
+            const email = this.value;
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                this.setCustomValidity('Please enter a valid email address');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Update apartment type options based on availability
+        document.getElementById('apartmentType').addEventListener('change', function() {
+            const apartmentData = JSON.parse(localStorage.getItem('apartmentData')) || {};
+            const selectedType = this.value;
+            
+            if (apartmentData[selectedType] && apartmentData[selectedType].available <= 0) {
+                alert('Sorry, no units available for this apartment type.');
+                this.value = '';
+            }
+        });
+    </script>
+</body>
+</html> 

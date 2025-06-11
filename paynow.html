@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebPay - Secure Payment</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-header">
+            <div class="logo">.webPay</div>
+            <div class="timer">02:04 <br> time left!</div>
+        </div>
+
+        <div class="payment-content">
+            <div class="payment-form">
+                <div class="form-group">
+                    <label for="cardNumber">Card Number</label>
+                    <p class="hint">Enter the 16-digit card number on the card</p>
+                    <div class="card-input-wrapper">
+                        <img src="https://assets.codepen.io/160105/visa.svg" alt="Visa" class="card-icon visa">
+                        <input type="text" id="cardNumber" placeholder="4854 6848 7521 2657">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cardName">Card Name Holder</label>
+                    <p class="hint">Enter name card holder on the card</p>
+                    <input type="text" id="cardName" placeholder="John Doe">
+                </div>
+
+                <div class="form-group cvv-expiry">
+                    <div class="cvv-group">
+                        <label for="cvvNumber">CVV Number</label>
+                        <p class="hint">Enter the 3 or 4 digits number on the card</p>
+                        <input type="text" id="cvvNumber" placeholder="•••">
+                    </div>
+                    <div class="expiry-group">
+                        <label for="expiryDate">Expiry Date</label>
+                        <p class="hint">Enter the expiration date of the card</p>
+                        <div class="expiry-inputs">
+                            <input type="text" id="expiryMonth" placeholder="MM">
+                            <span>/</span>
+                            <input type="text" id="expiryYear" placeholder="YY">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="pay-now-button">Pay Now</button>
+            </div>
+
+            <div class="order-summary">
+                <div class="card-preview">
+                    <img src="https://assets.codepen.io/160105/mastercard.svg" alt="Mastercard" class="card-logo">
+                    <div class="card-name">John Doe</div>
+                    <div class="card-number">4854 6848 7521 2657</div>
+                    <div class="card-expiry">11 / 25</div>
+                </div>
+                <div class="summary-details">
+                    <div class="summary-item">
+                        <span>Order Number</span>
+                        <span class="value">15042022</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Product</span>
+                        <span class="value">iPhone 13 Pro</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Vat (10%)</span>
+                        <span class="value">$50.00</span>
+                    </div>
+                </div>
+                <div class="total-amount">
+                    <span class="value">1.255 USD</span>
+                    <span class="label">Total you have to pay</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const billId = urlParams.get('billId');
+            const billAmount = urlParams.get('amount');
+
+            // Display UPI ID and bill amount
+            const paymentForm = document.querySelector('.payment-form');
+            const upiSection = document.createElement('div');
+            upiSection.innerHTML = `
+                <div class="form-group" style="text-align: center; margin-top: 20px;">
+                    <label>Please pay ${billAmount} to:</label>
+                    <p style="font-size: 1.2em; font-weight: bold; color: #28a745;">9515855335@ybl</p>
+                    <p class="hint">Scan QR code or use UPI ID</p>
+                </div>
+            `;
+            paymentForm.prepend(upiSection);
+
+            // Update the total amount display in the order summary
+            document.querySelector('.total-amount .value').textContent = billAmount;
+            document.querySelector('.total-amount .label').textContent = 'Amount to Pay';
+
+            // Add event listener for the Pay Now button
+            const payNowButton = document.querySelector('.pay-now-button');
+            payNowButton.textContent = 'Process Payment'; // Change button text
+            payNowButton.addEventListener('click', () => {
+                // Simulate payment processing
+                alert('Processing your payment...');
+
+                // Update bill status in localStorage
+                const currentUserUsername = localStorage.getItem('currentUser');
+                if (currentUserUsername) {
+                    let customers = JSON.parse(localStorage.getItem('customers')) || [];
+                    const customerIndex = customers.findIndex(c => c.username === currentUserUsername);
+
+                    if (customerIndex !== -1) {
+                        const customer = customers[customerIndex];
+                        const billIndex = customer.bills.findIndex(b => b.id === billId);
+
+                        if (billIndex !== -1) {
+                            customer.bills[billIndex].status = 'paid';
+                            customer.bills[billIndex].action = 'Paid';
+                            localStorage.setItem('customers', JSON.stringify(customers));
+                            alert('Payment successful! Your bill status has been updated.');
+                            window.location.href = 'customer-dashboard.html'; // Redirect back to dashboard
+                        } else {
+                            alert('Bill not found for this customer.');
+                        }
+                    } else {
+                        alert('Current user not found.');
+                    }
+                } else {
+                    alert('Please log in to process payment.');
+                    window.location.href = 'customer-login.html';
+                }
+            });
+
+            // Hide card form inputs for UPI payment scenario, but keep them for visual consistency
+            // For this specific request, we'll keep them but might hide them if only UPI is preferred.
+            // If we strictly want to hide them, we can add styles like display: none to .form-group for card details.
+
+        });
+    </script>
+</body>
+</html> 
